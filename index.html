@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Product List Activity</title>
+  <style>
+    body { 
+      font-family: Arial, sans-serif; 
+      background-color: #000; 
+      color: #ffa500; 
+      text-align: center; 
+      margin: 20px;
+    }
+    table { 
+      border-collapse: collapse; 
+      margin: 20px auto; 
+      background-color: #111; 
+      width: 80%;
+      table-layout: fixed;
+    }
+    th, td { 
+      border: 1px solid #ffa500; 
+      padding: 8px; 
+      color: #ffa500;
+      width: 25%;
+    }
+    th { background-color: #222; }
+    h1 { color: #ffa500; }
+    button { 
+      margin: 10px; 
+      padding: 8px 16px; 
+      background-color: #ffa500; 
+      color: #000; 
+      border: none; 
+      cursor: pointer; 
+      font-weight: bold;
+    }
+    button:hover { background-color: #ff7f00; }
+    form { margin: 20px auto; }
+    input { margin: 5px; padding: 5px; }
+    .my-name {
+      color: #ffa500;  
+      margin-top: 0;   
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Product List Comparison Part 2</h1>
+   <h2 class="my-name">By: Mark Emil Sola</h2>
+
+  <!-- Input Form -->
+  <form id="product-form">
+    <input type="text" id="name" placeholder="Product Name" required>
+    <input type="text" id="price" placeholder="Price" required>
+    <input type="text" id="category" placeholder="Category" required>
+    <button type="submit">Add Product</button>
+  </form>
+
+  <!-- Buttons -->
+  <div>
+    <button id="reload-innerHTML">Reload with innerHTML</button>
+    <button id="reload-dom">Reload with DOM methods</button>
+    <button id="clear-table">Clear Table</button>
+    <button id="performance-test">Run Performance Test</button>
+  </div>
+
+  <!-- Single Table -->
+  <table id="product-table">
+    <thead>
+      <tr>
+        <th>Product Name</th>
+        <th>Price</th>
+        <th>Category</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="product-body"></tbody>
+  </table>
+
+  <script>
+    let products = [
+      { name: "Laptop", price: "₱45,000", category: "Electronics" },
+      { name: "Smartphone", price: "₱30,000", category: "Electronics" },
+      { name: "Office Chair", price: "₱7,500", category: "Furniture" },
+      { name: "Wristwatch", price: "₱12,000", category: "Accessories" },
+      { name: "Electric Fan", price: "₱3,200", category: "Appliances" }
+    ];
+
+    const tbody = document.getElementById("product-body");
+
+    // === InnerHTML Method ===
+    function loadInnerHTML() {
+      let html = "";
+      products.forEach((p, index) => {
+        html += `<tr>
+                  <td>${p.name}</td>
+                  <td>${p.price}</td>
+                  <td>${p.category}</td>
+                  <td><button onclick="deleteProduct(${index}, 'innerHTML')">Delete</button></td>
+                </tr>`;
+      });
+      tbody.innerHTML = html;
+    }
+
+    // === Direct DOM Methods ===
+    function loadDOM() {
+      tbody.innerHTML = "";
+      products.forEach((p, index) => {
+        const row = document.createElement("tr");
+
+        const tdName = document.createElement("td");
+        tdName.textContent = p.name;
+        row.appendChild(tdName);
+
+        const tdPrice = document.createElement("td");
+        tdPrice.textContent = p.price;
+        row.appendChild(tdPrice);
+
+        const tdCategory = document.createElement("td");
+        tdCategory.textContent = p.category;
+        row.appendChild(tdCategory);
+
+        const tdDelete = document.createElement("td");
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "Delete";
+        delBtn.onclick = () => deleteProduct(index, "DOM");
+        tdDelete.appendChild(delBtn);
+        row.appendChild(tdDelete);
+
+        tbody.appendChild(row);
+      });
+    }
+
+    // === Delete Product ===
+    function deleteProduct(index, method) {
+      products.splice(index, 1);
+      if (method === "innerHTML") loadInnerHTML();
+      else loadDOM();
+    }
+
+    // === Clear Table ===
+    function clearTable() {
+      tbody.innerHTML = "";
+    }
+
+    // === Add Product from Form ===
+    document.getElementById("product-form").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const name = document.getElementById("name").value;
+      const price = document.getElementById("price").value;
+      const category = document.getElementById("category").value;
+      products.push({ name, price, category });
+      loadDOM(); // default to DOM method for adding
+      this.reset();
+    });
+
+    // === Performance Test ===
+    function generateManyProducts(count) {
+      let many = [];
+      for (let i = 1; i <= count; i++) {
+        many.push({
+          name: "Product " + i,
+          price: "₱" + Math.floor(Math.random() * 100),
+          category: "Category " + (i % 5 + 1)
+        });
+      }
+      return many;
+    }
+
+    function performanceTest() {
+      const manyProducts = generateManyProducts(100);
+
+      console.time("innerHTML");
+      products = manyProducts.slice();
+      loadInnerHTML();
+      console.timeEnd("innerHTML");
+
+      console.time("DOM");
+      products = manyProducts.slice();
+      loadDOM();
+      console.timeEnd("DOM");
+    }
+
+    // Buttons
+    document.getElementById("reload-innerHTML").addEventListener("click", loadInnerHTML);
+    document.getElementById("reload-dom").addEventListener("click", loadDOM);
+    document.getElementById("clear-table").addEventListener("click", clearTable);
+    document.getElementById("performance-test").addEventListener("click", performanceTest);
+
+    // Initial load
+    loadInnerHTML();
+  </script>
+</body>
+</html>
